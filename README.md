@@ -1,1 +1,3 @@
-# pintrest_data_processing
+# retail_data_processing
+
+![Entity relationship diagram](erd.png)
