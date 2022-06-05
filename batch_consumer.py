@@ -1,3 +1,6 @@
+# this script receives messages from the 'SalesTransactions' kafka topic, 
+# prepares the json for the transaction and uploads it to the S3 data lake.
+
 from kafka import KafkaConsumer
 import json
 from secrets import aws_access_key_id, aws_secret_access_key

@@ -1,6 +1,8 @@
+-- CODE SNIPPETS FOR MANAGING THE TABLES IN THE POSTGRESQL DATA WAREHOUSE
+
 -- FACT TABLE
+
 create table if not exists transactions (
-    item_trans_id serial primary key,
     transaction_num int not null, -- Degenerate dimension
     item_num int not null, -- Degenerate dimension
     store_key int  not null,
@@ -11,13 +13,16 @@ create table if not exists transactions (
     constraint fk_store 
         foreign key(store_key)
         references stores(store_key),
-    constraint fk_datetime 
-        foreign key(datetime_key)    
-        references datetimes(datetime_key),
     constraint fk_product
         foreign key(product_key)    
         references products(product_key)          
 );
+
+    -- item_trans_id serial primary key,
+
+        -- constraint fk_datetime 
+        -- foreign key(datetime_key)    
+        -- references datetimes(datetime_key),
 
 
 -- DIMENSIONAL TABLES

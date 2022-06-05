@@ -1,9 +1,30 @@
+# This script ingests data from an S3 data lake in the form of json files with 
+# this format: 
+# {'transaction_no': 12, 'store': 'London', 'time': '2022-06-05 21:44:51', 'item_no': 1,\
+#  'item': {'flavour': 'Lemon', 'size': 'large', 'quantity': 4}}
+
+# It processes the data to create a dataframe that looks like this, and one which has a 
+# schema that matches the fact table in the PostgreSQL data warehouse, and upserts it into 
+# the fact table.
+
+    # |transaction_no|item_no|store_key|datetime_key|product_key|quantity|price|
+    # +--------------+-------+---------+------------+-----------+--------+-----+
+    # |            10|      1|        1|  2022060315|          7|       2|    2|
+    # |            10|      2|        1|  2022060315|          4|       2|    2|
+    # |             1|      1|        1|  2022060521|          5|       4|    1|
+    # |             1|      2|        1|  2022060521|          7|       1|    2|
+    # |             1|      3|        1|  2022060521|          6|       3|    1|
+    # +--------------+-------+---------+------------+-----------+--------+-----+
+
+# the data warehouse contains the necessary dim tables that connect to the various keys.
+# the ERD of the data warehouse is available in the README.md file. 
+
 import json
 
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame as SparkDataFrame
-from pyspark.sql.functions import monotonically_increasing_id, udf
-from pyspark.sql.types import IntegerType, FloatType
+from pyspark.sql.functions import udf
+from pyspark.sql.types import IntegerType
 
 from sqlalchemy import create_engine
 
@@ -72,7 +93,7 @@ def get_dicts():
     }
 
     pg_stores_df = get_postgres_table('Cupcakes', 'stores', postgres_user_name, postgres_password)
-    stores_dict = {s["city"]:int(s["store_key"]) for s in pg_stores_df.collect()}
+    stores_dict = {s["city"]:s["store_key"] for s in pg_stores_df.collect()}
 
     return product_dict, price_dict, stores_dict
 
@@ -154,7 +175,9 @@ transactions_df = \
 transactions_df = transactions_df\
     .withColumn("store_key", transactions_df["store_key"].cast(IntegerType()))\
     .withColumn("product_key", transactions_df["product_key"].cast(IntegerType()))\
-    .withColumn("price", transactions_df["price"].cast(IntegerType()))
+    .withColumn("price", transactions_df["price"].cast(IntegerType()))\
+    .withColumn("quantity", transactions_df["quantity"].cast(IntegerType()))
+    
 
 
 # reorder columns according to PostgreSQL schema
@@ -165,6 +188,13 @@ transactions_df = transactions_df.select("transaction_no", "item_no","store_key"
 server = "Cupcakes"
 table = "temp_transactions"
 
+engine = create_engine(f'postgresql://{postgres_user_name}:{postgres_password}@localhost:5432/Cupcakes')
+con = engine.connect() 
+
+con.execute("""
+    drop table if exists temp_transactions
+""")
+
 transactions_df\
     .write\
     .format("jdbc")\
@@ -173,8 +203,7 @@ transactions_df\
     .option("dbtable", "temp_transactions")\
     .option("user", postgres_user_name).option("password", postgres_password).save()
 
-engine = create_engine(f'postgresql://{postgres_user_name}:{postgres_password}@localhost:5432/Cupcakes')
-con = engine.connect() 
+
 
 con.execute("""
     insert into transactions
@@ -185,6 +214,8 @@ con.execute("""
 con.execute("""
     drop table temp_transactions
 """)
+
+transactions_df.show(5)
 
 # create date_time data frame using imported schema
 # populate it with all the hours of that date

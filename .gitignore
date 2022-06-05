@@ -132,10 +132,14 @@ dmypy.json
 /*.ipynb
 /secrets.py
 /snippets.py
+/model_consumer.py
 
 # data folders
 /User_Emulation
 /data
+/commits
+/offsets
+/sources
 
 # artifacts
 /*.csv
@@ -143,3 +147,5 @@ dmypy.json
 /*.zip
 /*.json
 /*.erdplus
+/*.crc
+/.2.crc
