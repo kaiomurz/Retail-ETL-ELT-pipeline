@@ -1,6 +1,6 @@
 # Retail transaction processing pipeline.
 
-An ETL and ELT pipeline that receives emulated transaction data from a chain of retail stores and applies bacth and stream processessing in order to populate a data warehouse and provide quick metrics for real-time monitoring respectively.
+An ETL and ELT pipeline that receives emulated transaction data from a chain of retail stores and applies batch and stream processessing in order to populate a data warehouse and provide quick metrics for real-time monitoring respectively.
 
 
 ![Pipeline](retail_data_pipeline.png)

@@ -111,6 +111,7 @@ spark = SparkSession.builder\
 .getOrCreate()
 
 
+
 # ingest unprocessed data from s3 into dataframe for a specific date
 
 transactions_df = ingest_s3_json_to_df(
@@ -120,6 +121,7 @@ transactions_df = ingest_s3_json_to_df(
     bucket='retail-data-lake',
     prefix='unprocessed/',
 )
+
 
 # extract values from item map into separate columns
 transactions_df = transactions_df\

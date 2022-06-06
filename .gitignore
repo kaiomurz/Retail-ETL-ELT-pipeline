@@ -130,9 +130,10 @@ dmypy.json
 
 # private files
 /*.ipynb
-/secrets.py
-/snippets.py
-/model_consumer.py
+/scripts/admin.py
+/scripts/secrets.py
+/scripts/snippets.py
+/scripts/model_consumer.py
 
 # data folders
 /User_Emulation
